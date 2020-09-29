@@ -2,7 +2,7 @@ import time
 
 
 # not using decorator
-def print_timestamps(func):
+def timestamps(func):
     def wrapper():
         start = time.perf_counter()
         print(f"start: {start}, {func.__name__}")
@@ -13,22 +13,22 @@ def print_timestamps(func):
     return wrapper
 
 
-def say_hello():
+def hello():
     print('hello')
 
 
-def say_world():
+def world():
     print('world')
 
 
-print_hello = print_timestamps(say_hello)
-print_world = print_timestamps(say_world)
-print_hello()
-print_world()
+hello_timestamps = timestamps(hello)
+world_timestamps = timestamps(world)
+hello_timestamps()
+world_timestamps()
 
 
 # using decorator
-def print_timestamps_using_decorator(func):
+def deco_timestamps(func):
     def wrapper():
         start = time.perf_counter()
         print(f"start: {start}, {func.__name__}")
@@ -39,21 +39,21 @@ def print_timestamps_using_decorator(func):
     return wrapper
 
 
-@print_timestamps_using_decorator
-def say_hello_using_decorator():
-    print('hello1')
+@deco_timestamps
+def deco_hello():
+    print('hello')
 
 
-@print_timestamps_using_decorator
-def say_world_using_decorator():
-    print('world1')
+@deco_timestamps
+def deco_world():
+    print('world')
 
 
-say_hello_using_decorator()
-say_world_using_decorator()
+deco_hello()
+deco_world()
 
 
-# passing arguments and returning return value in decorator
+# passing func's arguments into wrapper
 def print_add(func):
     def wrapper(a, b):
         result = func(a, b)
@@ -91,3 +91,34 @@ def get_min(**kwargs):
 
 print(get_max(10, 20))
 print(get_min(x=10, y=20, z=5))
+
+
+# passing decorator's argument into wrapper
+def is_multiple(x):
+    def deco(func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            print(f'func = {func.__name__}, *args: {args}, **kwargs: {kwargs}')
+
+            if (result % x) == 0:
+                print(f'{result} is a mupltiplication of {x}')
+            else:
+                print(f'{result} is not a mupltiplication of {x}')
+
+            return result
+        return wrapper
+    return deco
+
+
+@is_multiple(3)
+def get_min1(*args):
+    return min(args)
+
+
+@is_multiple(3)
+def get_max1(**kwargs):
+    return max(kwargs.values())
+
+
+print(get_max1(x=10, y=20, z=5))
+print(get_min1(10, 20))
